@@ -582,16 +582,16 @@ namespace expected11
         template <typename F>
         expected<void, typename std::result_of<F(E &)>::type> transform_error(F function)
         {
-            typedef typename std::result_of<F(E &)>::type error_type;
-            return has_value() ? expected<void, error_type>()
-                               : expected<void, error_type>(make_unexpected(function(error()), source_location()));
+            typedef typename std::result_of<F(E &)>::type transformed_error_type;
+            return has_value() ? expected<void, transformed_error_type>()
+                               : expected<void, transformed_error_type>(make_unexpected(function(error()), source_location()));
         }
         template <typename F>
         expected<void, typename std::result_of<F(const E &)>::type> transform_error(F function) const
         {
-            typedef typename std::result_of<F(const E &)>::type error_type;
-            return has_value() ? expected<void, error_type>()
-                               : expected<void, error_type>(make_unexpected(function(error()), source_location()));
+            typedef typename std::result_of<F(const E &)>::type transformed_error_type;
+            return has_value() ? expected<void, transformed_error_type>()
+                               : expected<void, transformed_error_type>(make_unexpected(function(error()), source_location()));
         }
         template <typename F>
         typename std::result_of<F(E &)>::type or_else(F function)
