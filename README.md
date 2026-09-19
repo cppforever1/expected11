@@ -10,7 +10,14 @@
 ## Usage
 
 ```cpp
+#include <cassert>
+#include <exception>
+#include <stdexcept>
+
 #include <expected11/expected11.hpp>
+
+using expected11::expected;
+using expected11::make_unexpected;
 
 expected<int, std::exception> safe_divide(int a, int b)
 {
@@ -21,11 +28,13 @@ expected<int, std::exception> safe_divide(int a, int b)
     return expected<int, std::exception>(a / b);
 }
 
-int main() 
+int main()
 {
-    // test div function
+    // test safe_divide
     expected<int, std::exception> result = safe_divide(10, 2);
     assert(result && result.value() == 5);
+
+    // test division by zero
     expected<int, std::exception> div_by_zero = safe_divide(10, 0);
     assert(!div_by_zero);
     assert(div_by_zero.error().what() != 0);
@@ -61,7 +70,17 @@ expected11::unexpected<std::string> unexpected_error =
   EXPECTED11_MAKE_UNEXPECTED(std::string("not found"));
 
 expected11::SourceLocation location = unexpected_error.source_location();
-std::cout << location.file_name() << ':' << location.line() << '\n';
+On Windows with Visual Studio, use a Developer PowerShell or Developer Command Prompt:
+
+```powershell
+cmake -S . -B build
+cmake --build build --config Debug
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+On Linux, GCC or Clang can be used. On Windows, Visual Studio 2015 or newer, or MinGW-w64 with GCC, is recommended. The CMake project selects compiler-appropriate warning flags and requires C++11 without compiler extensions.
+
+The GitHub Actions workflow builds and runs the tests on both `ubuntu-latest` and `windows-latest`.
 ```
 
 When the `unexpected` value is converted to an `expected`, the location is preserved:
