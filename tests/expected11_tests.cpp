@@ -41,7 +41,7 @@ static expected<int, std::string> parse(const std::string &text)
 {
     if (text == "42")
         return expected<int, std::string>(42);
-        
+
     return make_unexpected(std::string("invalid"), EXPECTED11_SOURCE_LOCATION());
 }
 
@@ -50,6 +50,8 @@ int main()
     // test div function
     expected<int, std::exception> result = safe_divide(10, 2);
     assert(result && result.value() == 5);
+
+    // test division by zero
     expected<int, std::exception> div_by_zero = safe_divide(10, 0);
     assert(!div_by_zero);
     assert(div_by_zero.error().what() != 0);
@@ -147,23 +149,31 @@ int main()
     assert(!converted_error && converted_error.error() == 3L);
     expected<void, int> located_void = EXPECTED11_MAKE_UNEXPECTED(7);
     assert(!located_void && located_void.source_location().line() > 0);
-    assert(done.and_then([]() { return expected<int, int>(9); }).value() == 9);
-    assert(done.transform([]() { return 10; }).value() == 10);
-    assert(done.transform([]() { }).has_value());
+    assert(done.and_then([]()
+                         { return expected<int, int>(9); })
+               .value() == 9);
+    assert(done.transform([]()
+                          { return 10; })
+               .value() == 10);
+    assert(done.transform([]() {}).has_value());
     expected<void, std::string> void_failure =
         EXPECTED11_MAKE_UNEXPECTED(std::string("void failure"));
     expected<int, std::string> chained_failure =
-        void_failure.and_then([]() { return expected<int, std::string>(1); });
+        void_failure.and_then([]()
+                              { return expected<int, std::string>(1); });
     assert(!chained_failure);
     assert(chained_failure.source_location().line() == void_failure.source_location().line());
-    assert(void_failure.transform([]() { return 1; }).error() == "void failure");
-    assert(void_failure.transform_error([](const std::string &message) {
-        return message.size();
-    }).error() == 12u);
-    assert(done.or_else([](int) { return expected<void, int>(expected11::unexpect, 1); }).has_value());
-    assert(!void_failure.or_else([](const std::string &message) {
-        return expected<void, std::string>(expected11::unexpect, message);
-    }));
+    assert(void_failure.transform([]()
+                                  { return 1; })
+               .error() == "void failure");
+    assert(void_failure.transform_error([](const std::string &message)
+                                        { return message.size(); })
+               .error() == 12u);
+    assert(done.or_else([](int)
+                        { return expected<void, int>(expected11::unexpect, 1); })
+               .has_value());
+    assert(!void_failure.or_else([](const std::string &message)
+                                 { return expected<void, std::string>(expected11::unexpect, message); }));
 
     expected<ThrowingValue, int> throwing_value(expected11::in_place, 1);
     ThrowingValue replacement(2);

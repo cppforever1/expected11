@@ -90,7 +90,7 @@ namespace expected11
     {
     public:
         explicit bad_expected_access(E error) : error_(std::move(error)) {}
-        const char *what() const throw() { return "bad expected access"; }
+        const char *what() const noexcept { return "bad expected access"; }
         E &error() { return error_; }
         const E &error() const { return error_; }
 
@@ -265,12 +265,20 @@ namespace expected11
 
         expected &operator=(const expected &other)
         {
-            if (this != &other) { expected replacement(other); assign_from(std::move(replacement)); }
+            if (this != &other)
+            {
+                expected replacement(other);
+                assign_from(std::move(replacement));
+            }
             return *this;
         }
         expected &operator=(expected &&other)
         {
-            if (this != &other) { expected replacement(std::move(other)); assign_from(std::move(replacement)); }
+            if (this != &other)
+            {
+                expected replacement(std::move(other));
+                assign_from(std::move(replacement));
+            }
             return *this;
         }
         expected &operator=(const T &value)
@@ -381,9 +389,17 @@ namespace expected11
         template <typename F>
         expected<T, typename std::result_of<F(const E &)>::type> transform_error(F function) const { return has_value() ? expected<T, typename std::result_of<F(const E &)>::type>(value()) : expected<T, typename std::result_of<F(const E &)>::type>(make_unexpected(function(error()), source_location())); }
         template <typename F>
-        typename std::result_of<F(E &)>::type or_else(F function) { typedef typename std::result_of<F(E &)>::type result_type; return has_value() ? result_type(value()) : function(error()); }
+        typename std::result_of<F(E &)>::type or_else(F function)
+        {
+            typedef typename std::result_of<F(E &)>::type result_type;
+            return has_value() ? result_type(value()) : function(error());
+        }
         template <typename F>
-        typename std::result_of<F(const E &)>::type or_else(F function) const { typedef typename std::result_of<F(const E &)>::type result_type; return has_value() ? result_type(value()) : function(error()); }
+        typename std::result_of<F(const E &)>::type or_else(F function) const
+        {
+            typedef typename std::result_of<F(const E &)>::type result_type;
+            return has_value() ? result_type(value()) : function(error());
+        }
 
     private:
         void assign_from(expected &&other)
@@ -497,12 +513,20 @@ namespace expected11
         }
         expected &operator=(const expected &other)
         {
-            if (this != &other) { expected replacement(other); assign_from(std::move(replacement)); }
+            if (this != &other)
+            {
+                expected replacement(other);
+                assign_from(std::move(replacement));
+            }
             return *this;
         }
         expected &operator=(expected &&other)
         {
-            if (this != &other) { expected replacement(std::move(other)); assign_from(std::move(replacement)); }
+            if (this != &other)
+            {
+                expected replacement(std::move(other));
+                assign_from(std::move(replacement));
+            }
             return *this;
         }
         expected &operator=(const unexpected<E> &error)
